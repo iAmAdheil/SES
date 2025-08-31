@@ -28,6 +28,7 @@ function Chat() {
     const [loading, setLoading] = useState(false)
     const es = useRef<EventSource | null>(null)
     const msgId = useRef<string | null>(null)
+    const chatId = useRef<string | null>(null)
 
     const [prompt, setPrompt] = useState('')
     const [messages, setMessages] = useState<Message[]>([])
@@ -50,6 +51,7 @@ function Chat() {
                         return [...prevState]
                     }
                 })
+                chatId.current = data.chatId || null
                 es.current?.close()
                 return
             }
@@ -72,12 +74,15 @@ function Chat() {
 
         es.current?.addEventListener('close', (event) => {
             console.log('event has been closed')
+            setLoading(false)
             es.current = null
             msgId.current = null
         })
     }
 
     const handleSend = async () => {
+        setLoading(true)
+
         const payload = {
             message: prompt,
         }
@@ -93,7 +98,7 @@ function Chat() {
         msgId.current = newMsgId
 
         const newES = new EventSource(
-            `${process.env.EXPO_PUBLIC_BACKEND_URL}/chat`,
+            `${process.env.EXPO_PUBLIC_BACKEND_URL}/chat/${chatId.current}`,
             {
                 method: 'POST',
                 headers: {

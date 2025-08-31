@@ -1,7 +1,8 @@
 export interface Chunk {
-    chunk: string
+    chunk?: string
     finished: boolean
-    id: string
+    entire_msg?: string
+    chatId?: string
 }
 
 export interface Message {
