@@ -30,14 +30,6 @@ function Index() {
   const [prompt, setPrompt] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const pathname = usePathname();
-  const router = useRouter();
-  useEffect(() => {
-    if (pathname === "/firebaseauth/link") {
-      router.back();
-    }
-  }, [pathname]);
-
   useEffect(() => {
     const handleToken = async () => {
       token.current = await getToken();

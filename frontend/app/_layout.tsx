@@ -4,6 +4,7 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
+import { View } from "react-native";
 import "@/global.css";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
@@ -11,6 +12,8 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAuth } from "@/hooks/useAuth";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator } from "react-native";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -38,7 +41,13 @@ export default function RootLayout() {
   }, [route, loading]);
 
   if (!loaded || loading) {
-    return null;
+    return (
+      <SafeAreaView className="flex-1">
+        <View className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
+      </SafeAreaView>
+    );
   }
 
   return (

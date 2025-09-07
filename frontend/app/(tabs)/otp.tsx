@@ -79,7 +79,7 @@ function Otp() {
       if (result === 0) {
         throw new Error("Failed to store token");
       }
-      router.navigate("/(drawer)/chat");
+      router.navigate("/(drawer)");
     } catch (e: any) {
       console.log(e);
       router.back();
