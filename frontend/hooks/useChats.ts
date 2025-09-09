@@ -5,7 +5,7 @@ import axios from "axios";
 
 export function useChats(fetch: boolean) {
 	const [loading, setLoading] = useState<boolean>(false);
-	const [chats, setChats] = useState<any>(null);
+	const [chats, setChats] = useState<any>([]);
 
 	const fetchChats = async () => {
 		try {
@@ -23,7 +23,6 @@ export function useChats(fetch: boolean) {
 				throw new Error(res.data.message || "Something went wrong");
 			}
 			console.log("chats fetched");
-			console.log(res.data.chats);
 			setChats(res.data.chats);
 		} catch (e: any) {
 			console.log(e.message || "Something went wrong");

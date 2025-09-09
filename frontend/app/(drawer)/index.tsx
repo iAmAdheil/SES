@@ -16,6 +16,7 @@ import EventSource from "react-native-sse";
 import { Chunk, Message } from "@/types";
 import { generateId } from "@/utils/generate";
 import { getToken } from "@/utils/token";
+import useChatId from "@/store/chatId";
 
 function Index() {
   const headerHeight = useHeaderHeight();
