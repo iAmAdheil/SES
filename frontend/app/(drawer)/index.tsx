@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import Voice from "@react-native-voice/voice";
 import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -20,6 +21,7 @@ import { getToken } from "@/utils/token";
 import useChatId from "@/store/chatId";
 import axios from "axios";
 import { type Chat } from "@/types";
+import { useRouter } from "expo-router";
 
 const formatChat = (convo: Chat) => {
   const messages = [];
@@ -39,8 +41,109 @@ const formatChat = (convo: Chat) => {
   return { messages, lastMsgId: messages[messages.length - 1].id || "" };
 };
 
+function Footer({
+  prompt,
+  setPrompt,
+  handleSend,
+  loading,
+}: {
+  prompt: string;
+  setPrompt: (value: string) => void;
+  handleSend: () => void;
+  loading: boolean;
+}) {
+  const [isRecording, setIsRecording] = useState(false);
+
+  useEffect(() => {
+    // Set up event listeners
+    Voice.onSpeechStart = onSpeechStart;
+    Voice.onSpeechEnd = onSpeechEnd;
+    Voice.onSpeechResults = onSpeechResults;
+    Voice.onSpeechError = (error) => {
+      console.log("error while listening:", error);
+      setIsRecording(false);
+    };
+
+    // Clean up
+    return () => {
+      Voice.destroy().then(() => {
+        Voice.removeAllListeners();
+      });
+    };
+  }, []);
+
+  const onSpeechStart = (event: any) => {
+    console.log("Event:", event);
+  };
+
+  const onSpeechEnd = (event: any) => {
+    console.log("Event:", event);
+  };
+
+  const onSpeechResults = (event: any) => {
+    console.log("Event:", event);
+    const text = event.value[0];
+    setPrompt(text);
+  };
+
+  const startListening = async () => {
+    try {
+      await Voice.start("en-US");
+      setIsRecording(true);
+    } catch (e: any) {
+      console.log(e.message || "Something went wrong");
+      setIsRecording(false);
+    }
+  };
+
+  const stopListening = async () => {
+    try {
+      Voice.removeAllListeners();
+      await Voice.stop();
+      setIsRecording(false);
+    } catch (e: any) {
+      console.log(e.message || "Something went wrong");
+    }
+  };
+
+  return (
+    <View className="py-2 relative">
+      <TextInput
+        placeholder="Ask anything"
+        value={prompt}
+        onChangeText={(value) => setPrompt(value)}
+        multiline={true}
+        maxLength={200}
+        numberOfLines={8}
+        style={[styles.input, { paddingRight: isRecording ? 80 : 60 }]}
+        placeholderTextColor={"gray"}
+      />
+      <View style={styles.inputButtonsContainer}>
+        {prompt.length === 0 && !isRecording && (
+          <TouchableOpacity onPress={startListening}>
+            <Feather name="mic" size={22} color="gray" />
+          </TouchableOpacity>
+        )}
+        {isRecording && (
+          <TouchableOpacity onPress={stopListening}>
+            <View className="w-6 h-6 bg-red-500 rounded-md" />
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity style={styles.sendContainer} onPress={handleSend}>
+          {loading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <AntDesign name="arrowup" size={20} color="white" />
+          )}
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 function Index() {
   const headerHeight = useHeaderHeight();
+  const router = useRouter();
   const { chatId } = useChatId();
 
   const [loadChat, setLoadChat] = useState(false);
@@ -190,32 +293,12 @@ function Index() {
             loading={loadChat}
           />
         </View>
-        <View className="py-2 relative">
-          <TextInput
-            placeholder="Ask anything"
-            value={prompt}
-            onChangeText={(value) => setPrompt(value)}
-            multiline={true}
-            maxLength={200}
-            numberOfLines={8}
-            style={styles.input}
-            placeholderTextColor={"gray"}
-          />
-          <View style={styles.inputButtonsContainer}>
-            {prompt.length === 0 && (
-              <TouchableOpacity>
-                <Feather name="mic" size={22} color="gray" />
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity style={styles.sendContainer} onPress={handleSend}>
-              {loading ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <AntDesign name="arrowup" size={20} color="white" />
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
+        <Footer
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handleSend={handleSend}
+          loading={loading}
+        />
       </SafeAreaView>
     </KeyboardAvoidingView>
   );
@@ -229,7 +312,6 @@ const styles = StyleSheet.create({
     borderColor: "lightgray",
     borderRadius: 20,
     paddingLeft: 18,
-    paddingRight: 60,
     paddingVertical: 12,
     flexShrink: 0,
     marginHorizontal: 12,
