@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { type Message as MessageInterface } from "@/types";
 import Markdown from "react-native-markdown-display";
 import { getStyles } from "@/markdown";
@@ -102,7 +103,7 @@ function ChatWindow({
                 message={item.prompt}
                 isUser={true}
                 isStreaming={item.isStreaming}
-                playingId={playingId}
+                playing={playingId === item.id}
                 startTts={startTts}
                 stopTts={stopTts}
               />
@@ -113,7 +114,7 @@ function ChatWindow({
                 message={item.response}
                 isUser={false}
                 isStreaming={item.isStreaming}
-                playingId={playingId}
+                playing={playingId === item.id}
                 startTts={startTts}
                 stopTts={stopTts}
               />
@@ -139,7 +140,7 @@ const Message = memo(
     message,
     isUser,
     isStreaming,
-    playingId,
+    playing,
     startTts,
     stopTts,
   }: {
@@ -147,7 +148,7 @@ const Message = memo(
     message: string;
     isUser: boolean;
     isStreaming: boolean;
-    playingId: string | null;
+    playing: boolean;
     startTts: (msgId: string, text: string) => void;
     stopTts: () => void;
   }) => {
@@ -194,8 +195,16 @@ const Message = memo(
           <TouchableOpacity>
             <Feather name="copy" size={15} color="black" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => startTts(id, message)}>
-            <Ionicons name="volume-medium-outline" size={20} color="black" />
+          <TouchableOpacity
+            onPress={() => {
+              playing ? stopTts() : startTts(id, message);
+            }}
+          >
+            {playing ? (
+              <FontAwesome5 name="pause-circle" size={18} color="#3b444b" />
+            ) : (
+              <Ionicons name="volume-medium-outline" size={20} color="black" />
+            )}
           </TouchableOpacity>
         </View>
       </View>

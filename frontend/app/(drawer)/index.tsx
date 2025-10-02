@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
 import Voice from "@react-native-voice/voice";
 import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -294,21 +293,24 @@ function Index() {
   useEffect(() => {
     Tts.addEventListener("tts-start", (event) => {});
     Tts.addEventListener("tts-progress", (event) => {});
-    Tts.addEventListener("tts-finish", (event) => {});
+    Tts.addEventListener("tts-finish", (event) => {
+      setPlayingId(null);
+    });
     Tts.addEventListener("tts-cancel", (event) => {});
 
-    // return () => {
-    //   stopTts();
-    // };
+    return () => {
+      stopTts();
+    };
   }, [chatId]);
 
   const startTts = (msgId: string, text: string) => {
+    Tts.stop();
     Tts.speak(text);
     setPlayingId(msgId);
   };
 
   const stopTts = async () => {
-    const result = await Tts.pause();
+    const result = await Tts.stop();
     console.log(result);
     setPlayingId(null);
   };
