@@ -154,10 +154,7 @@ const Message = memo(
     stopTts: () => void;
   }) => {
     const theme = useTheme();
-    const markdownStyles = getStyles(
-      isUser ? "white" : theme.dark ? "white" : "black",
-      15.5,
-    );
+    const markdownStyles = getStyles(theme.dark ? "dark" : "light", 15.5);
 
     if (isUser) {
       return (
@@ -165,16 +162,12 @@ const Message = memo(
           className="ml-auto bg-gray-600"
           style={[
             messageStyles.messageContainer,
-            { paddingHorizontal: 12, paddingVertical: 4 },
+            { paddingHorizontal: 12, paddingVertical: 12 },
           ]}
         >
-          <Markdown
-            style={{
-              ...markdownStyles,
-            }}
-          >
+          <Text style={{ fontSize: 15, fontFamily: "Inter-Regular", color: "white" }}>
             {message}
-          </Markdown>
+          </Text>
         </View>
       );
     }
@@ -219,7 +212,7 @@ const Message = memo(
               <Ionicons
                 name="volume-medium-outline"
                 size={20}
-                color={theme.dark ? "white" : "#3b444b"}
+                color={theme.dark ? "white" : "black"}
               />
             )}
           </TouchableOpacity>

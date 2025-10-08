@@ -17,8 +17,8 @@ export default function DrawerLayout() {
         options={{
           headerTitle: "",
           headerStyle: {
-            backgroundColor: theme.dark ? "black" : "white",
-            borderBottomColor: theme.dark ? "#282828" : "black",
+            backgroundColor: theme.dark ? "black" : "transparent",
+            borderBottomColor: theme.dark ? "#282828" : "lightgray",
             borderBottomWidth: 0.5,
           },
           headerShown: true,
@@ -47,11 +47,7 @@ function Settings() {
       ]}
       onPress={() => router.push("/modal")}
     >
-      <FontAwesome5
-        name="user-alt"
-        size={12}
-        color={theme.dark ? "white" : "black"}
-      />
+      <FontAwesome5 name="user-alt" size={12} color={"white"} />
     </TouchableOpacity>
   );
 }

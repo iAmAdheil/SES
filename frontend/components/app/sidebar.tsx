@@ -148,7 +148,7 @@ function Chats({
                   chatsStyles.titleText,
                   { color: theme.dark ? "white" : "black" },
                 ]}
-                className="line-clamp-1"
+								numberOfLines={1}
               >
                 {chat.title}
               </Text>

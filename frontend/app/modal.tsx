@@ -2,52 +2,139 @@ import { View, Text, StyleSheet, TouchableOpacity, Switch } from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
 import useTheme from "@/store/theme";
+import { signOut } from "@/utils/signin";
+import { useNavigation } from "expo-router";
 
 export default function Modal() {
   const { theme, updateTheme } = useTheme();
+  const navigation = useNavigation();
+
+  const handleSignOut = async () => {
+    navigation.goBack();
+    await signOut();
+  };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme === "dark" ? "#151718" : "white" },
+      ]}
+    >
       <View className="w-full py-2 mx-auto flex items-center mb-8">
-        <Text style={styles.heading}>Settings</Text>
+        <Text
+          style={[
+            styles.heading,
+            { color: theme === "dark" ? "white" : "black" },
+          ]}
+        >
+          Settings
+        </Text>
       </View>
       <View className="flex flex-col gap-8 px-6">
         <View className="flex flex-col gap-4">
-          <Text style={styles.groupText}>Account</Text>
-          <View className="w-full bg-gray-100 px-4 py-3 rounded-2xl flex flex-col gap-6">
+          <Text
+            style={[
+              styles.groupText,
+              { color: theme === "dark" ? "white" : "black" },
+            ]}
+          >
+            Account
+          </Text>
+          <View
+            style={{
+              backgroundColor: theme === "dark" ? "#282828" : "#f3f4f6",
+            }}
+            className="w-full px-4 py-3 rounded-2xl flex flex-col gap-6"
+          >
             <View className="w-full flex flex-row items-center justify-between">
               <View className="flex flex-row items-center gap-5">
                 <MaterialCommunityIcons
                   name="email-outline"
                   size={20}
-                  color="black"
+                  color={theme === "dark" ? "white" : "black"}
                 />
-                <Text style={styles.optionText}>Email</Text>
+                <Text
+                  style={[
+                    styles.optionText,
+                    { color: theme === "dark" ? "white" : "black" },
+                  ]}
+                >
+                  Email
+                </Text>
               </View>
               <View>
-                <Text style={styles.optionText}>email@email.com</Text>
+                <Text
+                  style={[
+                    styles.optionText,
+                    { color: theme === "dark" ? "white" : "black" },
+                  ]}
+                >
+                  email@email.com
+                </Text>
               </View>
             </View>
 
             <View className="w-full flex flex-row items-center justify-between">
               <View className="flex flex-row items-center gap-5">
-                <Feather name="phone" size={20} color="black" />
-                <Text style={styles.optionText}>Phone</Text>
+                <Feather
+                  name="phone"
+                  size={20}
+                  color={theme === "dark" ? "white" : "black"}
+                />
+                <Text
+                  style={[
+                    styles.optionText,
+                    { color: theme === "dark" ? "white" : "black" },
+                  ]}
+                >
+                  Phone
+                </Text>
               </View>
               <View>
-                <Text style={styles.optionText}>+91 0123456789</Text>
+                <Text
+                  style={[
+                    styles.optionText,
+                    { color: theme === "dark" ? "white" : "black" },
+                  ]}
+                >
+                  +91 0123456789
+                </Text>
               </View>
             </View>
           </View>
         </View>
 
         <View className="flex flex-col gap-4">
-          <Text style={styles.groupText}>App</Text>
-          <View className="w-full bg-gray-100 py-3 rounded-2xl flex flex-col gap-6">
+          <Text
+            style={[
+              styles.groupText,
+              { color: theme === "dark" ? "white" : "black" },
+            ]}
+          >
+            App
+          </Text>
+          <View
+            style={{
+              backgroundColor: theme === "dark" ? "#282828" : "#f3f4f6",
+            }}
+            className="w-full py-3 rounded-2xl flex flex-col gap-6"
+          >
             <View className="w-full flex flex-row items-center justify-between">
               <View className="flex flex-row items-center gap-5 pl-4">
-                <Feather name="moon" size={20} color="black" />
-                <Text style={styles.optionText}>Appearance</Text>
+                <Feather
+                  name="moon"
+                  size={20}
+                  color={theme === "dark" ? "white" : "black"}
+                />
+                <Text
+                  style={[
+                    styles.optionText,
+                    { color: theme === "dark" ? "white" : "black" },
+                  ]}
+                >
+                  Appearance
+                </Text>
               </View>
               <View className="pr-4">
                 <Switch
@@ -61,9 +148,26 @@ export default function Modal() {
           </View>
         </View>
 
-        <TouchableOpacity className="w-full bg-gray-100 px-4 py-3 rounded-2xl flex flex-row items-center gap-5">
-          <MaterialCommunityIcons name="logout" size={22} color="black" />
-          <Text style={styles.optionText}>Log out</Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: theme === "dark" ? "#282828" : "#f3f4f6",
+          }}
+          className="w-full px-4 py-3 rounded-2xl flex flex-row items-center gap-5"
+					onPress={handleSignOut}
+        >
+          <MaterialCommunityIcons
+            name="logout"
+            size={22}
+            color={theme === "dark" ? "white" : "black"}
+          />
+          <Text
+            style={[
+              styles.optionText,
+              { color: theme === "dark" ? "white" : "black" },
+            ]}            
+          >
+            Log out
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

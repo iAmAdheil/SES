@@ -14,6 +14,7 @@ import {
 import { OtpInput } from "react-native-otp-entry";
 import { useFocusEffect, useRouter } from "expo-router";
 import useConfirm from "@/store/confirm";
+import useTheme from "@/store/theme";
 import { storeToken } from "@/utils/token";
 
 function Input({
@@ -23,6 +24,7 @@ function Input({
   disabled: boolean;
   setDigits: (digits: string) => void;
 }) {
+  const { theme } = useTheme();
   return (
     <View className="w-full flex flex-row justify-between items-center gap-2">
       <OtpInput
@@ -30,7 +32,12 @@ function Input({
         focusColor="#1DA1F2"
         onTextChange={(otp) => setDigits(otp)}
         disabled={disabled}
-        theme={{ pinCodeTextStyle: inputStyles.pinCodeTextStyle }}
+        theme={{
+          pinCodeTextStyle: {
+            ...inputStyles.pinCodeTextStyle,
+            color: theme === "dark" ? "white" : "black",
+          },
+        }}
       />
     </View>
   );
@@ -38,7 +45,6 @@ function Input({
 
 const inputStyles = StyleSheet.create({
   pinCodeTextStyle: {
-    color: "black",
     fontSize: 24,
     fontWeight: "400",
   },

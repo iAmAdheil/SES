@@ -129,6 +129,7 @@ function Footer({
           {
             paddingRight: isRecording ? 80 : 60,
             color: theme.dark ? "white" : "black",
+            borderColor: theme.dark ? "#282828" : "lightgray",
           },
         ]}
       />
@@ -158,8 +159,8 @@ function Footer({
               />
             ) : (
               <AntDesign
-                name="arrowup"
-                size={20}
+                name="arrow-up"
+                size={18}
                 color={theme.dark ? "black" : "white"}
               />
             )}

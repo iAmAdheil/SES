@@ -17,11 +17,13 @@ import { phoneSignIn, googleSignIn } from "@/utils/signin";
 import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import useConfirm from "@/store/confirm";
+import useTheme from "@/store/theme";
 
 function Signin() {
   const pathname = usePathname();
   const router = useRouter();
   const { updateConfirm } = useConfirm();
+  const { theme } = useTheme();
 
   const [loading, setLoading] = useState(false);
   const [activeInput, setActiveInput] = useState<string>("");
@@ -78,7 +80,14 @@ function Signin() {
                 color={activeInput === "phone" ? "#1DA1F2" : "gray"}
                 className="absolute z-10 left-5 top-2.5"
               />
-              <Text style={styles.phoneCountryCode}>+91</Text>
+              <Text
+                style={[
+                  styles.phoneCountryCode,
+                  { color: theme === "dark" ? "white" : "black" },
+                ]}
+              >
+                +91
+              </Text>
               <TextInput
                 keyboardType="numeric"
                 maxLength={10}
@@ -88,6 +97,7 @@ function Signin() {
                   styles.phoneInput,
                   {
                     borderColor: activeInput === "phone" ? "#1DA1F2" : "gray",
+                    color: theme === "dark" ? "white" : "black",
                   },
                 ]}
                 placeholder="Enter your phone number"
@@ -161,7 +171,7 @@ const styles = StyleSheet.create({
   },
   phoneCountryCode: {
     position: "absolute",
-    left: 47.5,
+    left: 50,
     top: 8,
     fontSize: 16,
     color: "black",
@@ -169,7 +179,7 @@ const styles = StyleSheet.create({
   phoneInput: {
     width: "100%",
     borderRadius: 5,
-    paddingLeft: 80,
+    paddingLeft: 85,
     paddingRight: 40,
     paddingVertical: 8,
     color: "black",
