@@ -50,11 +50,11 @@ export default function RootLayout() {
     }
   }, [route, loading]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setSplashLoader(false);
-    }, 1000);
-  }, []);
+    useEffect(() => {
+      setTimeout(() => {
+        setSplashLoader(false);
+      }, 5000);
+    }, []);
 
   if (!loaded || loading || splashLoader) {
     return (
@@ -86,17 +86,18 @@ export default function RootLayout() {
 }
 
 function LoadingLogo({ theme }: { theme: "dark" | "light" }) {
-  const translateY = useSharedValue(0);
+  const translateY = useSharedValue(200);
 
   useEffect(() => {
     // Define the animation: move to y: 500 and back to y: 0
     translateY.value = withRepeat(
       withSequence(
-        withTiming(500, { duration: 2500 }), // Move down 500px
+        // withTiming(160, { duration: 2500 }), // Move down 100pxw
         withTiming(0, { duration: 2500 }), // Move back to 0
+        withTiming(200, { duration: 2500 }), // Move up 100px
       ),
       -1, // Infinite loop
-      false, // Do not reverse
+      true, // Do not reverse
     );
   }, []);
 
@@ -109,15 +110,15 @@ function LoadingLogo({ theme }: { theme: "dark" | "light" }) {
     <MaskedView
       androidRenderingMode="software"
       style={{
-        flex: 1,
         flexDirection: "row",
-        height: "100%",
+        height: 250,
       }}
       maskElement={
         <View
           style={{
-            flex: 1,
+            height: 250,
             backgroundColor: "transparent",
+            display: "flex",
             justifyContent: "center",
             alignItems: "center",
           }}
