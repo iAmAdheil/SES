@@ -36,6 +36,7 @@ const formatChat = (convo: Chat) => {
       id: msgId,
       response: resMsg.message,
       prompt: promptMsg.message,
+      isLoading: false,
     });
   }
 
@@ -259,6 +260,7 @@ function Index() {
         const lastMsg = prevState[prevState.length - 1];
         if (lastMsg && lastMsg.id === msgId.current) {
           lastMsg.response += data.chunk;
+          lastMsg.isLoading = false;
           return [...prevState.slice(0, -1), lastMsg];
         } else {
           return [...prevState];
@@ -292,6 +294,7 @@ function Index() {
       id: newMsgId,
       response: "",
       prompt: prompt,
+      isLoading: true,
     };
     setMessages((prevState) => [...prevState, newMsg]);
     msgId.current = newMsgId;
@@ -307,8 +310,6 @@ function Index() {
         body: JSON.stringify(payload),
       },
     );
-
-    console.log("User Token:", token.current);
 
     es.current = newES;
     await handleSSE();
@@ -350,7 +351,7 @@ function Index() {
           <ChatWindow
             messages={messages}
             msgId={msgId.current || ""}
-            loading={loadChat}
+            loadingChat={loadChat}
             playingId={playingId}
             startTts={startTts}
             stopTts={stopTts}

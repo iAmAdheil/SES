@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, Switch } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Switch,
+  Alert,
+} from "react-native";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
 import useTheme from "@/store/theme";
@@ -10,8 +17,16 @@ export default function Modal() {
   const navigation = useNavigation();
 
   const handleSignOut = async () => {
-    navigation.goBack();
-    await signOut();
+    Alert.alert("Logout", "Are you sure you want to log out?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Logout",
+        onPress: async () => {
+          await signOut();
+          navigation.goBack();
+        },
+      },
+    ]);
   };
 
   return (
@@ -153,7 +168,7 @@ export default function Modal() {
             backgroundColor: theme === "dark" ? "#282828" : "#f3f4f6",
           }}
           className="w-full px-4 py-3 rounded-2xl flex flex-row items-center gap-5"
-					onPress={handleSignOut}
+          onPress={handleSignOut}
         >
           <MaterialCommunityIcons
             name="logout"
@@ -164,7 +179,7 @@ export default function Modal() {
             style={[
               styles.optionText,
               { color: theme === "dark" ? "white" : "black" },
-            ]}            
+            ]}
           >
             Log out
           </Text>

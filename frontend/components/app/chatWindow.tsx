@@ -15,6 +15,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { type Message as MessageInterface } from "@/types";
 import Markdown from "react-native-markdown-display";
+import { LoaderKitView } from "react-native-loader-kit";
 import { getStyles } from "@/markdown";
 
 const windowWidth = Dimensions.get("window").width;
@@ -22,14 +23,14 @@ const windowWidth = Dimensions.get("window").width;
 function ChatWindow({
   messages,
   msgId,
-  loading,
+  loadingChat,
   playingId,
   startTts,
   stopTts,
 }: {
   msgId: string;
   messages: MessageInterface[];
-  loading: boolean;
+  loadingChat: boolean;
   playingId: string | null;
   startTts: (msgId: string, text: string) => void;
   stopTts: () => void;
@@ -51,12 +52,12 @@ function ChatWindow({
     };
 
     const index = messages.findIndex((msg) => msg.id === msgIdRef.current);
-    if (messages.length > 0 && index > -1 && !loading) {
+    if (messages.length > 0 && index > -1 && !loadingChat) {
       scrollToEnd(index);
     }
-  }, [messages, loading]);
+  }, [messages, loadingChat]);
 
-  if (loading) {
+  if (loadingChat) {
     return (
       <View
         style={{
@@ -67,7 +68,7 @@ function ChatWindow({
           justifyContent: "center",
         }}
       >
-        <ActivityIndicator size="large" color="blue" />
+        <ActivityIndicator size="large" color="#1DA1F2" />
       </View>
     );
   }
@@ -82,6 +83,8 @@ function ChatWindow({
       )}
       <FlatList
         ref={flatListRef}
+        data={messages}
+        keyExtractor={(item) => item.id.toString()}
         onScrollBeginDrag={() => {
           msgIdRef.current = null;
         }}
@@ -94,8 +97,6 @@ function ChatWindow({
             });
           });
         }}
-        data={messages}
-        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <>
             <View className="my-1.5">
@@ -104,6 +105,7 @@ function ChatWindow({
                 message={item.prompt}
                 isUser={true}
                 isStreaming={item.isStreaming}
+                isLoading={false}
                 playing={playingId === item.id}
                 startTts={startTts}
                 stopTts={stopTts}
@@ -115,6 +117,7 @@ function ChatWindow({
                 message={item.response}
                 isUser={false}
                 isStreaming={item.isStreaming}
+                isLoading={item.isLoading}
                 playing={playingId === item.id}
                 startTts={startTts}
                 stopTts={stopTts}
@@ -140,7 +143,8 @@ const Message = memo(
     id,
     message,
     isUser,
-    isStreaming,
+    // isStreaming,
+    isLoading,
     playing,
     startTts,
     stopTts,
@@ -149,6 +153,7 @@ const Message = memo(
     message: string;
     isUser: boolean;
     isStreaming: boolean;
+    isLoading: boolean;
     playing: boolean;
     startTts: (msgId: string, text: string) => void;
     stopTts: () => void;
@@ -162,10 +167,16 @@ const Message = memo(
           className="ml-auto bg-gray-600"
           style={[
             messageStyles.messageContainer,
-            { paddingHorizontal: 12, paddingVertical: 12 },
+            { paddingHorizontal: 12, paddingVertical: 12, maxWidth: "80%" },
           ]}
         >
-          <Text style={{ fontSize: 15, fontFamily: "Inter-Regular", color: "white" }}>
+          <Text
+            style={{
+              fontSize: 15,
+              fontFamily: "Inter-Regular",
+              color: "white",
+            }}
+          >
             {message}
           </Text>
         </View>
@@ -174,48 +185,82 @@ const Message = memo(
 
     return (
       <View
-        className="mr-auto"
         style={[
-          messageStyles.messageContainer,
           {
-            paddingHorizontal: 8,
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "flex-start",
+            justifyContent: "center",
+            gap: 14,
+            marginRight: "auto",
           },
         ]}
       >
-        <Markdown
+        <View
           style={{
-            ...markdownStyles,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 2,
+            borderRadius: 100,
+            borderWidth: 1,
+            borderColor: theme.dark ? "#333333" : "#dbdbdb",
+            marginTop: 5,
           }}
         >
-          {message}
-        </Markdown>
-        <View className="ml-2 flex flex-row items-center gap-3">
-          <TouchableOpacity>
-            <Feather
-              name="copy"
-              size={15}
-              color={theme.dark ? "white" : "black"}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              playing ? stopTts() : startTts(id, message);
-            }}
-          >
-            {playing ? (
-              <FontAwesome5
-                name="pause-circle"
-                size={18}
-                color={theme.dark ? "white" : "black"}
-              />
-            ) : (
-              <Ionicons
-                name="volume-medium-outline"
-                size={20}
-                color={theme.dark ? "white" : "black"}
-              />
-            )}
-          </TouchableOpacity>
+          <Image
+            source={require("@/assets/new-images/logo.png")}
+            className="w-8 h-8"
+          />
+        </View>
+        <View style={[messageStyles.messageContainer, { maxWidth: "80%" }]}>
+          {isLoading ? (
+            // <LoaderKitView
+            //   style={{ width: 22, height: 22, marginTop: 22 }}
+            //   name={"BallPulse"}
+            //   animationSpeedMultiplier={0.6}
+            //   color={theme.dark ? "white" : "black"}
+            // />
+            <View></View>
+          ) : (
+            <>
+              <Markdown
+                style={{
+                  ...markdownStyles,
+                }}
+              >
+                {message}
+              </Markdown>
+              <View className="ml-2 flex flex-row items-center gap-3">
+                <TouchableOpacity>
+                  <Feather
+                    name="copy"
+                    size={15}
+                    color={theme.dark ? "white" : "black"}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    playing ? stopTts() : startTts(id, message);
+                  }}
+                >
+                  {playing ? (
+                    <FontAwesome5
+                      name="pause-circle"
+                      size={18}
+                      color={theme.dark ? "white" : "black"}
+                    />
+                  ) : (
+                    <Ionicons
+                      name="volume-medium-outline"
+                      size={20}
+                      color={theme.dark ? "white" : "black"}
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
         </View>
       </View>
     );
@@ -227,7 +272,6 @@ export default ChatWindow;
 const messageStyles = StyleSheet.create({
   messageContainer: {
     borderRadius: 10,
-    maxWidth: "80%",
     display: "flex",
     flexDirection: "column",
     gap: 10,
