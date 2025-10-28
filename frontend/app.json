@@ -21,7 +21,7 @@
         {
           "ios": {
             "useFrameworks": "static",
-						"forceStaticLinking": ["RNFBApp"],
+			"forceStaticLinking": ["RNFBApp"],
             "newArchEnabled": true
           },
           "android": {

@@ -2,13 +2,13 @@ import { memo, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
   TouchableOpacity,
   Image,
   Dimensions,
   ActivityIndicator,
 } from "react-native";
+import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { useTheme } from "@react-navigation/native";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -35,7 +35,7 @@ function ChatWindow({
   startTts: (msgId: string, text: string) => void;
   stopTts: () => void;
 }) {
-  const flatListRef = useRef<FlatList>(null);
+  const flashListRef = useRef<FlashListRef<MessageInterface>>(null);
   const msgIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -44,11 +44,13 @@ function ChatWindow({
 
   useEffect(() => {
     const scrollToEnd = (i: number) => {
-      flatListRef.current?.scrollToIndex({
-        animated: true,
-        index: i,
-        viewPosition: -0.02,
-      });
+      console.log("scrollToIndex...", i);
+      // flashListRef.current?.scrollToIndex({
+      //   animated: true,
+      //   index: i,
+      //   viewPosition: 0.1,
+      // });
+      flashListRef.current?.scrollToEnd({ animated: true });
     };
 
     const index = messages.findIndex((msg) => msg.id === msgIdRef.current);
@@ -81,50 +83,13 @@ function ChatWindow({
           className="w-52 h-52 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 opacity-30"
         />
       )}
-      <FlatList
-        ref={flatListRef}
+      <FlashList
+        ref={flashListRef}
         data={messages}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item: any) => item.id.toString()}
         onScrollBeginDrag={() => {
           msgIdRef.current = null;
         }}
-        onScrollToIndexFailed={(info) => {
-          const wait = new Promise((resolve) => setTimeout(resolve, 500));
-          wait.then(() => {
-            flatListRef.current?.scrollToIndex({
-              index: info.index,
-              animated: true,
-            });
-          });
-        }}
-        renderItem={({ item }) => (
-          <>
-            <View className="my-1.5">
-              <Message
-                id={item.id}
-                message={item.prompt}
-                isUser={true}
-                isStreaming={item.isStreaming}
-                isLoading={false}
-                playing={playingId === item.id}
-                startTts={startTts}
-                stopTts={stopTts}
-              />
-            </View>
-            <View className="my-1.5">
-              <Message
-                id={item.id}
-                message={item.response}
-                isUser={false}
-                isStreaming={item.isStreaming}
-                isLoading={item.isLoading}
-                playing={playingId === item.id}
-                startTts={startTts}
-                stopTts={stopTts}
-              />
-            </View>
-          </>
-        )}
         style={{
           paddingHorizontal: 10,
           flex: 1,
@@ -133,6 +98,37 @@ function ChatWindow({
           paddingVertical: 20,
         }}
         showsVerticalScrollIndicator={true}
+        renderItem={({ item }) => (
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+              marginVertical: 12,
+            }}
+          >
+            <Message
+              id={item.id}
+              message={item.prompt}
+              isUser={true}
+              isStreaming={item.isStreaming}
+              isLoading={false}
+              playing={playingId === item.id}
+              startTts={startTts}
+              stopTts={stopTts}
+            />
+            <Message
+              id={item.id}
+              message={item.response}
+              isUser={false}
+              isStreaming={item.isStreaming}
+              isLoading={item.isLoading}
+              playing={playingId === item.id}
+              startTts={startTts}
+              stopTts={stopTts}
+            />
+          </View>
+        )}
       />
     </View>
   );
@@ -215,13 +211,12 @@ const Message = memo(
         </View>
         <View style={[messageStyles.messageContainer, { maxWidth: "80%" }]}>
           {isLoading ? (
-            // <LoaderKitView
-            //   style={{ width: 22, height: 22, marginTop: 22 }}
-            //   name={"BallPulse"}
-            //   animationSpeedMultiplier={0.6}
-            //   color={theme.dark ? "white" : "black"}
-            // />
-            <View></View>
+            <LoaderKitView
+              style={{ width: 22, height: 22, marginTop: 22 }}
+              name={"BallPulse"}
+              animationSpeedMultiplier={0.6}
+              color={theme.dark ? "white" : "black"}
+            />
           ) : (
             <>
               <Markdown
