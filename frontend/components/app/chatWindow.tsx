@@ -7,8 +7,9 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
-import { FlashList, FlashListRef } from "@shopify/flash-list";
+// import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { useTheme } from "@react-navigation/native";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -35,7 +36,8 @@ function ChatWindow({
   startTts: (msgId: string, text: string) => void;
   stopTts: () => void;
 }) {
-  const flashListRef = useRef<FlashListRef<MessageInterface>>(null);
+  // const flashListRef = useRef<FlashListRef<MessageInterface>>(null);
+  const flatListRef = useRef<FlatList>(null);
   const msgIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -45,12 +47,12 @@ function ChatWindow({
   useEffect(() => {
     const scrollToEnd = (i: number) => {
       console.log("scrollToIndex...", i);
-      // flashListRef.current?.scrollToIndex({
-      //   animated: true,
-      //   index: i,
-      //   viewPosition: 0.1,
-      // });
-      // flashListRef.current?.scrollToEnd({ animated: true });
+      const res = flatListRef.current?.scrollToIndex({
+        animated: true,
+        index: i,
+        viewPosition: 0.1,
+      });
+      console.log(res);
     };
 
     const index = messages.findIndex((msg) => msg.id === msgIdRef.current);
@@ -83,12 +85,15 @@ function ChatWindow({
           className="w-52 h-52 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 opacity-30"
         />
       )}
-      <FlashList
-        ref={flashListRef}
+      <FlatList
+        ref={flatListRef}
         data={messages}
         keyExtractor={(item: any) => item.id.toString()}
         onScrollBeginDrag={() => {
           msgIdRef.current = null;
+        }}
+        getItemLayout={(data, index) => {
+          return { length: 500, index, offset: 500 * index };
         }}
         style={{
           paddingHorizontal: 10,
