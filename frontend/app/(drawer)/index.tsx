@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
+import { useRouter } from "expo-router";
 import Voice from "@react-native-voice/voice";
 import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -58,6 +59,8 @@ function Footer({
   loading: boolean;
   chatId: string;
 }) {
+  const router = useRouter();
+
   const [isRecording, setIsRecording] = useState(false);
 
   useEffect(() => {
@@ -151,7 +154,8 @@ function Footer({
               styles.sendContainer,
               { backgroundColor: theme.dark ? "white" : "black" },
             ]}
-            onPress={handleSend}
+            // onPress={handleSend}
+            onPress={() => router.push("/test")}
           >
             {loading ? (
               <ActivityIndicator

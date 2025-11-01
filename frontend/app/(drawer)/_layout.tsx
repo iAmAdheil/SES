@@ -29,6 +29,23 @@ export default function DrawerLayout() {
           },
         }}
       />
+      <Drawer.Screen
+        name="test"
+        options={{
+          headerTitle: "",
+          headerStyle: {
+            backgroundColor: theme.dark ? "black" : "transparent",
+            borderBottomColor: theme.dark ? "#282828" : "lightgray",
+            borderBottomWidth: 0.5,
+          },
+          headerShown: true,
+          headerRight: () => <Settings />,
+          headerRightContainerStyle: {
+            paddingRight: 15,
+            paddingBottom: 6,
+          },
+        }}
+      />
     </Drawer>
   );
 }
