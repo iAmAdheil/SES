@@ -2,14 +2,17 @@
   "expo": {
     "scheme": "ai-animesh",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "android": {
       "edgeToEdgeEnabled": true,
       "googleServicesFile": "./firebase/google-services.json",
-      "package": "com.AI.animesh"
+      "package": "com.AI.animesh",
+      "newArchEnabled": true
     },
     "ios": {
       "googleServicesFile": "./firebase/GoogleService-Info.plist",
-      "bundleIdentifier": "com.AI.animesh"
+      "bundleIdentifier": "com.AI.animesh",
+      "newArchEnabled": true
     },
     "plugins": [
       "@react-native-firebase/app",
@@ -21,7 +24,7 @@
         {
           "ios": {
             "useFrameworks": "static",
-			"forceStaticLinking": ["RNFBApp"],
+            "forceStaticLinking": ["RNFBApp"],
             "newArchEnabled": true
           },
           "android": {

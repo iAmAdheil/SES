@@ -7,6 +7,7 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import { FlashList, FlashListRef } from "@shopify/flash-list";
 import { useTheme } from "@react-navigation/native";
@@ -36,6 +37,7 @@ function ChatWindow({
   stopTts: () => void;
 }) {
   const flashListRef = useRef<FlashListRef<MessageInterface>>(null);
+  const flatListRef = useRef<FlatList>(null);
   const msgIdRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -45,12 +47,11 @@ function ChatWindow({
   useEffect(() => {
     const scrollToEnd = (i: number) => {
       console.log("scrollToIndex...", i);
-      // flashListRef.current?.scrollToIndex({
-      //   animated: true,
-      //   index: i,
-      //   viewPosition: 0.1,
-      // });
-      // flashListRef.current?.scrollToEnd({ animated: true });
+      flatListRef.current?.scrollToIndex({
+        animated: true,
+        index: i,
+        viewPosition: 0.1,
+      });
     };
 
     const index = messages.findIndex((msg) => msg.id === msgIdRef.current);
@@ -83,12 +84,62 @@ function ChatWindow({
           className="w-52 h-52 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 opacity-30"
         />
       )}
-      <FlashList
+      {/* <FlashList
         ref={flashListRef}
         data={messages}
         keyExtractor={(item: any) => item.id.toString()}
         onScrollBeginDrag={() => {
           msgIdRef.current = null;
+        }}
+        style={{
+          paddingHorizontal: 10,
+          flex: 1,
+        }}
+        contentContainerStyle={{
+          paddingVertical: 20,
+        }}
+        showsVerticalScrollIndicator={true}
+        renderItem={({ item }) => (
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+              marginVertical: 12,
+            }}
+          >
+            <Message
+              id={item.id}
+              message={item.prompt}
+              isUser={true}
+              isStreaming={item.isStreaming}
+              isLoading={false}
+              playing={playingId === item.id}
+              startTts={startTts}
+              stopTts={stopTts}
+            />
+            <Message
+              id={item.id}
+              message={item.response}
+              isUser={false}
+              isStreaming={item.isStreaming}
+              isLoading={item.isLoading}
+              playing={playingId === item.id}
+              startTts={startTts}
+              stopTts={stopTts}
+            />
+          </View>
+        )}
+      /> */}
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        keyExtractor={(item: any) => item.id.toString()}
+        onScrollBeginDrag={() => {
+          msgIdRef.current = null;
+        }}
+        getItemLayout={(data, index) => {
+          return { length: 500, index, offset: 500 * index };
         }}
         style={{
           paddingHorizontal: 10,
