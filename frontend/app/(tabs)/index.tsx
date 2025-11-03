@@ -139,8 +139,8 @@ function Signin() {
 
             <View className="w-full" style={styles.bottomContainer}>
               <TouchableOpacity
-                // onPress={googleSignIn}
-                onPress={handleTest}
+                onPress={googleSignIn}
+                // onPress={handleTest}
                 style={[
                   styles.button,
                   {
