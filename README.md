@@ -1,3 +1,199 @@
-### Solve react-native-tts error
+### SES Monorepo
 
-https://github.com/ak1394/react-native-tts/pull/274
+Full-stack AI chat application with:
+
+## Overview
+
+- React Native client → Express API (auth + history + SSE proxy) → FastAPI RAG microservice → ChromaDB + Gemini 2.0 Flash.
+- Streaming over Server-Sent Events (SSE) with ordered chunks and a completion message.
+- MongoDB stores users, chat titles, and message history.
+- Supports both speech-to-text queries and text-to-speech playback.
+
+
+## Contents
+
+- **frontend/** – Expo React Native app (Android, iOS, Web)
+- **backend/** – Express + TypeScript API (JWT auth, chat history, SSE proxy)
+- **FastAPI/** – RAG microservice (classification, retrieval, generation)
+- **RAG/** – Python experiments/utilities for RAG
+- **voice/** – Local React Native voice module consumed by the app
+
+
+## Architecture
+
+- **Authentication**: The app authenticates with Firebase (phone OTP or Google). The Express backend verifies the Firebase JWT and issues its own JWT for accessing `/chat/*` APIs.
+- **Chat generation**: The mobile client opens an SSE connection to Express `/chat/generate`. Express proxies the request to FastAPI and relays streamed chunks back to the client, preserving order.
+- **RAG**: FastAPI classifies the query, retrieves from ChromaDB, falls back to Semantic Scholar + in-memory FAISS hydration when needed, then streams grounded markdown from Gemini 2.0 Flash.
+- **Persistence**: MongoDB Atlas stores users, chat titles, and per-turn message history.
+
+Chain: React Native → Express (JWT + SSE) → FastAPI (RAG) → ChromaDB/Gemini → SSE back to client.
+
+
+## End-to-End Interaction Flow
+
+1. User logs in via Firebase (phone OTP or Google). Express issues a JWT stored in AsyncStorage.
+2. Mobile client opens an SSE connection to `/chat/generate`, sending the prompt and JWT.
+3. Express forwards the request to FastAPI and relays streamed chunks as they arrive.
+4. FastAPI classifies, retrieves, and generates grounded markdown using Gemini.
+5. Completion triggers chat persistence in MongoDB and refreshes history in the sidebar.
+6. Users can copy responses, start/stop TTS playback, or revisit stored conversations.
+
+
+## RAG Pipeline (FastAPI)
+
+1. **Classify** the incoming question with `gemini-2.5-flash` into one of: specific-to-paper, generic-research, or non-research.
+2. **Retrieve** context from the `research_papers` ChromaDB collection via LangChain using `gemini-embedding-001`.
+3. **Fallback** when context is missing: query Semantic Scholar (search or paper autocomplete). If an open-access PDF is available, download the first ~10 pages, chunk with `RecursiveCharacterTextSplitter`, embed with LangChain FAISS, and run targeted similarity search.
+4. **System prompt** strictly forbids fabrication and enforces the fallback: "Sorry but cannot answer your question at the moment" when evidence is insufficient.
+5. **Stream generation** from `gemini-2.0-flash` back to Express, preserving chunk order and providing a final completion message.
+6. **SSE payloads** to the mobile client use the shape: `{ chunk, finished, chatId?, error? }`.
+
+
+## Ingestion & Knowledge Base
+
+- **Persistent KB**: External ChromaDB HTTP server (`http://localhost:8000`) seeded offline with de-duplicated research paper chunks (~1k tokens, 200 token overlap) and metadata (title, authors, venue, URL/DOI).
+- **Embeddings**: GoogleGenerativeAiEmbeddingFunction with `gemini-embedding-001`.
+- **Live Enrichment**: The specific-paper tool downloads up to 10 PDF pages via Semantic Scholar, chunks with `RecursiveCharacterTextSplitter`, embeds using LangChain FAISS, and answers directly from those slices.
+- **MongoDB Atlas**: Stores users, chat titles, and message history (user/assistant turns with timestamps).
+
+
+## Safety & Fidelity
+
+- **Classification** short-circuits non-research prompts.
+- **Generation prompt** mandates markdown structure, inline evidence, and a refusal fallback when retrieval fails.
+- **Express middleware** verifies Firebase-issued JWTs before allowing chat access.
+- **SSE layer** propagates structured errors that the app surfaces to users.
+- **Secrets**: Gemini, Mongo, and JWT secrets live in environment variables; rotate any dev keys before production.
+
+
+## Technologies by Component
+
+- **Mobile app (`frontend/`)**: Expo React Native, Expo Router, Zustand, React Native Paper, `react-native-sse`, `@react-native-voice/voice` (speech input), `react-native-tts` (audio playback), Firebase Auth for OTP + Google sign-in, Axios for REST calls, AsyncStorage for JWT persistence.
+- **Backend API (`backend/`)**: Express + TypeScript, Mongoose, JWT, CORS, dotenv. Endpoints: `/auth/signin`, `/chat/generate` (SSE proxy to FastAPI), `/chat/chats`, `/chat/:id`.
+- **RAG microservice (`FastAPI/`)**: FastAPI, LangChain, Google genai SDK, Semantic Scholar REST, ChromaDB HTTP client, FAISS via LangChain, asyncio streaming.
+- **Voice package (`voice/`)**: Custom React Native module (Android/iOS) for low-latency speech capture.
+- **Data stores**: MongoDB Atlas, ChromaDB HTTP server, ephemeral FAISS vector stores.
+
+
+## Environment Variables
+
+### Backend (`backend/.env`)
+
+- `MONGODB_CONNECTION_STRING` – MongoDB URI
+- `JWT_SECRET` – Secret for signing server-issued JWTs
+- `FASTAPI_BASE_URL` – e.g., `http://localhost:5432`
+
+Example (`backend/.env`):
+
+```
+MONGODB_CONNECTION_STRING="mongodb+srv://user:pass@cluster/yourdb"
+JWT_SECRET="change_me"
+FASTAPI_BASE_URL="http://localhost:5432"
+```
+
+### Frontend (Expo)
+
+- `EXPO_PUBLIC_BACKEND_URL` – e.g., `http://localhost:3000`
+- `EXPO_PUBLIC_FIREBASE_APIKEY`
+- `EXPO_PUBLIC_FIREBASE_AUTHDOMAIN`
+- `EXPO_PUBLIC_FIREBASE_PROJECTID`
+- `EXPO_PUBLIC_FIREBASE_STORAGEBUCKET`
+- `EXPO_PUBLIC_FIREBASE_MESSAGINGSENDERID`
+- `EXPO_PUBLIC_FIREBASE_APPID`
+- `EXPO_PUBLIC_FIREBASE_MEASUREMENTID`
+
+These map to `frontend/firebase-config.js` and API hooks (e.g., `${process.env.EXPO_PUBLIC_BACKEND_URL}/chat/chats`).
+
+### FastAPI (`FastAPI/.env` or environment)
+
+- `GOOGLE_GENAI_API_KEY` – Gemini API key
+- `CHROMA_HTTP_URL` – e.g., `http://localhost:8000`
+- `SEMANTIC_SCHOLAR_API_KEY` – optional (higher limits)
+
+
+## Setup & Run (Development)
+
+1) Backend (Express)
+
+```bash
+cd backend
+cp .env.example .env  # if present; otherwise create .env as above
+npm install
+npm run dev           # default port 3000
+```
+
+2) FastAPI (RAG)
+
+```bash
+cd FastAPI
+python -m venv .venv && . .venv/Scripts/activate  # Windows PowerShell: .venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn app:app --reload --port 5432
+```
+
+3) ChromaDB (external server)
+
+- Ensure a Chroma HTTP server runs at `http://localhost:8000` and the KB is seeded.
+
+4) Frontend (Expo)
+
+```bash
+cd frontend
+npm install
+EXPO_PUBLIC_BACKEND_URL=http://localhost:3000 npx expo start
+```
+
+5) Voice module
+
+- The app depends on the local tarball `../voice/react-native-voice-voice-3.2.4.tgz`. Ensure it exists and installs.
+
+
+## API and Streaming
+
+- **Express**
+  - `POST /auth/signin` → `{ token }`
+  - `GET /chat/chats` (Bearer token)
+  - `POST /chat/generate` (SSE proxy) → streams `{ chunk, finished, chatId? }`
+- **FastAPI**
+  - `POST /chat/response` (internal) → streams model output consumed by Express
+
+SSE payload envelope:
+
+```json
+{ "chunk": "text", "finished": false, "chatId": "optional", "error": null }
+```
+
+
+## Troubleshooting
+
+- Android mic permissions: ensure they are declared and granted.
+- React Native TTS: known issue/fix – https://github.com/ak1394/react-native-tts/pull/274
+- Expo env: ensure `EXPO_PUBLIC_*` variables are present when running `expo start`.
+- Default ports: Backend `3000`, FastAPI `5432`, Chroma `8000`.
+
+
+## Current Gaps & Roadmap
+
+- Chroma ingestion scripts live outside the repo; automation for PDF ingestion is planned.
+- Evaluation metrics (latency, retrieval hit rate) not yet exposed; SSE payloads reserve space for diagnostics.
+- Multilingual retrieval relies on Gemini embeddings; UI translations not implemented.
+- Model comparisons (multi-LLM) are out of scope for the current implementation.
+
+
+## Outputs Surfaced to Users
+
+- Markdown-formatted assistant response (<300 words) with inline citations or explicit fallback.
+- Chat history (latest 10 chats + full conversation on selection).
+- Optional audio playback per message, plus speech transcript capture on new prompts.
+- Error toasts when FastAPI raises retrieval or generation failures.
+
+
+## Repository Structure
+
+```
+SES/
+├─ backend/
+├─ FastAPI/
+├─ RAG/
+├─ frontend/
+└─ voice/
