@@ -21,7 +21,7 @@
     "@react-native-firebase/crashlytics": "^23.4.0",
     "@react-native-google-signin/google-signin": "^15.0.0",
     "@react-native-masked-view/masked-view": "0.3.2",
-    "@react-native-voice/voice": "file:../../voice/react-native-voice-voice-3.2.4.tgz",
+    "@react-native-voice/voice": "file:../voice/react-native-voice-voice-3.2.4.tgz",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/drawer": "^7.3.9",
     "@react-navigation/native": "^7.0.14",
