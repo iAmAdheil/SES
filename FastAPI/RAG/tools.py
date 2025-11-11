@@ -10,7 +10,7 @@ from langchain.tools import tool
 from . import helpers
 
 google_ef = embedding_functions.GoogleGenerativeAiEmbeddingFunction(
-    api_key="AIzaSyC-rE0Ggpz0AlNeYVC3aoJXBmz2j2YS9eI",
+    api_key="AIzaSyD336MYSkpfIK0J6kAbgse9D32jblhtsdk",
     model_name="gemini-embedding-001",  # Set the model explicitly
 )
 
@@ -19,20 +19,21 @@ chroma_client.heartbeat()
 
 model = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash",  # or "gemini-1.5-flash" for faster responses
-    google_api_key="AIzaSyC-rE0Ggpz0AlNeYVC3aoJXBmz2j2YS9eI",
+    google_api_key="AIzaSyD336MYSkpfIK0J6kAbgse9D32jblhtsdk",
     temperature=0.1,  # Lower for more factual responses
 )
 
 
 @tool
 def kb_retrieval(query: str) -> str:
-    """**PRIMARY SOURCE**: Retrieve stored full-text, abstract, or summary of research papers from the internal knowledge base.
+    """
+      **PRIMARY SOURCE**: Retrieve stored full-text, abstract, or summary of research papers from the internal knowledge base.
 
-    **Use this FIRST** for any question related to research.
-    - Returns exact stored document chunks (up to 5 most relevant).
-    - Each chunk is separated by "---".
-    - If no match: returns empty or error.
-    - **Never skip this step** when answering research related questions.
+      **Use this FIRST** for any question related to research.
+      - Returns exact stored document chunks (up to 5 most relevant).
+      - Each chunk is separated by "---".
+      - If no match: returns empty or error.
+      - **Never skip this step** when answering research related questions.
     """
     try:
         # embed query and get k nearest neighbours -> use retrieval techniques to improve context retrieval
@@ -66,18 +67,18 @@ class SearchInput(BaseModel):
 @tool("web_search", args_schema=SearchInput, return_direct=False)
 def web_search(query: str) -> str:
     """
-    **FALLBACK SEARCH**: Search Semantic Scholar for academic papers.
+      **FALLBACK SEARCH**: Search Semantic Scholar for academic papers.
 
-    **ONLY CALL THIS** if:
-    - `kb_retrieval` did not return enough context to answer the user's query.
+      **ONLY CALL THIS** if:
+      - `kb_retrieval` did not return enough context to answer the user's query.
 
-    **NEVER call this first** — always try `kb_retrieval` before using this.
+      **NEVER call this first** — always try `kb_retrieval` before using this.
 
-    Args:
-        query: Central topic behind the user's query(for eg. if question is 'What is attention in NLP?', the query should be 'attention in NLP')
+      Args:
+          query: Central topic behind the user's query(for eg. if question is 'What is attention in NLP?', the query should be 'attention in NLP')
 
-    Returns:
-        Formatted context with paper information
+      Returns:
+          Formatted context with paper information
     """
     try:
         # Build the API URL
@@ -142,19 +143,19 @@ class SpecificSearchInput(BaseModel):
 @tool("specific_web_search", args_schema=SpecificSearchInput, return_direct=False)
 def specific_web_search(query: str, user_query: str) -> str:
     """
-    **FALLBACK SEARCH**: Search Semantic Scholar for a specific paper.
+      **FALLBACK SEARCH**: Search Semantic Scholar for a specific paper.
 
-    **ONLY CALL THIS** if:
-    - `kb_retrieval` did not return enough context to answer the user's query.
+      **ONLY CALL THIS** if:
+      - `kb_retrieval` did not return enough context to answer the user's query.
 
-    **NEVER call this first** — always try `kb_retrieval` before using this.
+      **NEVER call this first** — always try `kb_retrieval` before using this.
 
-    Args:
-        query: complete or incomplete name of the paper or the central topic the user is referring to in their question. Higher priority to the paper's name(incomplete names are acceptable as well)
-        user_query: The user's original query
+      Args:
+          query: complete or incomplete name of the paper or the central topic the user is referring to in their question. Higher priority to the paper's name(incomplete names are acceptable as well)
+          user_query: The user's original query
 
-    Returns:
-        Formatted context with paper information
+      Returns:
+          Formatted context with paper information
     """
     try:
         context = ""

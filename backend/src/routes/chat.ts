@@ -4,7 +4,7 @@ import saveMsg from '../utils/save';
 import Chat from '../models/chat';
 
 // delete in the future
-const GEMINI_API_KEY = 'AIzaSyC-rE0Ggpz0AlNeYVC3aoJXBmz2j2YS9eI';
+const GEMINI_API_KEY = 'AIzaSyD336MYSkpfIK0J6kAbgse9D32jblhtsdk';
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 

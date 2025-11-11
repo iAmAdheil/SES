@@ -314,8 +314,8 @@ function Index() {
     msgId.current = newMsgId;
 
     const newES = new EventSource(
-      // `${process.env.EXPO_PUBLIC_BACKEND_URL}/chat/${chatIdRef.current}`,
-      `${process.env.EXPO_PUBLIC_BACKEND_URL}/chat/generate`,
+      `${process.env.EXPO_PUBLIC_BACKEND_URL}/chat/${chatIdRef.current}`,
+      // `${process.env.EXPO_PUBLIC_BACKEND_URL}/chat/generate`,
       {
         method: "POST",
         headers: {

@@ -16,7 +16,7 @@ class Prompt(BaseModel):
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
-client = genai.Client(api_key="AIzaSyC-rE0Ggpz0AlNeYVC3aoJXBmz2j2YS9eI")
+client = genai.Client(api_key="AIzaSyD336MYSkpfIK0J6kAbgse9D32jblhtsdk")
 
 
 async def generate(user_query: str):

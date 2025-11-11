@@ -9,7 +9,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 import faiss
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyC-rE0Ggpz0AlNeYVC3aoJXBmz2j2YS9eI"
+os.environ["GOOGLE_API_KEY"] = "AIzaSyD336MYSkpfIK0J6kAbgse9D32jblhtsdk"
 
 def extract_pdf(pdf_url: str, max_pages: int = 10) -> FAISS:
     try:    
