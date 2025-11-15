@@ -1,6 +1,13 @@
 # A RAG Framework for Research Paper Question Answering
+ - Presentation/Demo:- https://drive.google.com/file/d/1SgHN49c0P5W3EmVsCPcTXfBjBo9Kb4b2/view
 
-
+## Team Members:-
+ - Adheil Gupta: 23BDS002
+ - Arnav Gupta: 23BDS009
+ - Atharva Agrawal: 23BDS010
+ - Surya Narayana Rao: 23BDS025
+ - Tejas Chalwadi: 23BDS063
+  
 ## Overview
 
 - React Native client → Express API (auth + history + SSE proxy) → FastAPI RAG microservice → ChromaDB + Gemini 2.0 Flash.
